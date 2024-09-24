@@ -1,1 +1,1 @@
-from markup.markup import on_random_markup
+from markup.markup import next_markup, answer_markup

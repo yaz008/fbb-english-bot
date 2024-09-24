@@ -1,7 +1,7 @@
 from bot import bot
-from telebot.types import Message, CallbackQuery
+from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup as Markup
 from words import random_pair
-from markup import on_random_markup
+from markup import next_markup, answer_markup
 
 @bot.message_handler(commands=['start'])
 def on_start(message: Message) -> None:
@@ -13,19 +13,27 @@ def on_start(message: Message) -> None:
 def on_random(message: Message) -> None:
     word, antonym = random_pair()
     bot.send_message(chat_id=message.from_user.id,
-                     text=f'{word}: ||{antonym}||',
-                     reply_markup=on_random_markup(word=word))
+                     text=word,
+                     reply_markup=answer_markup(antonym=antonym))
     
 @bot.callback_query_handler(func=lambda *_: True)
 def on_callback(callback: CallbackQuery) -> None:
+    message: Message = callback.message
     match callback.data.split(sep=':'):
         case ['next', current_word]:
-            message: Message = callback.message
             word, antonym = random_pair(exclude_word=current_word)
-            bot.edit_message_text(text=f'{word}: ||{antonym}||',
+            markup: Markup = answer_markup(antonym=antonym)
+            bot.edit_message_text(text=f'{word}',
                                   chat_id=message.chat.id,
                                   message_id=message.id,
-                                  reply_markup=on_random_markup(word=current_word))
+                                  reply_markup=markup)
+        case ['answer', antonym]:
+            current_word: str = message.text
+            markup: Markup = next_markup(word=current_word)
+            bot.edit_message_text(text=f'{current_word}: {antonym}',
+                                  chat_id=message.chat.id,
+                                  message_id=message.id,
+                                  reply_markup=markup)
 
 if __name__ == '__main__':
     bot.infinity_polling()
