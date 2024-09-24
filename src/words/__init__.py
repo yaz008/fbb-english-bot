@@ -1,0 +1,1 @@
+from words.pair import random_pair
