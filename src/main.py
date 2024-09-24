@@ -5,10 +5,9 @@ from markup import on_random_markup
 
 @bot.message_handler(commands=['start'])
 def on_start(message: Message) -> None:
-    start_text: str = 'Welcome to *FBB English Bot*\\!\n\n'
-    start_text += 'Send /random to start practicing'
-    bot.send_message(chat_id=message.from_user.id,
-                     text=start_text)
+    with open(file='assets\\start.txt', mode='r', encoding='UTF-8') as start_text:
+        bot.send_message(chat_id=message.from_user.id,
+                        text=start_text.read())
 
 @bot.message_handler(commands=['random'])
 def on_random(message: Message) -> None:
